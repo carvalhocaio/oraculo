@@ -1,0 +1,52 @@
+Times da NFL Agrupados por Divisão
+
+American Football Conference (AFC):
+  AFC Leste (East):
+    - Buffalo Bills
+    - Miami Dolphins
+    - New England Patriots
+    - New York Jets
+
+  AFC Norte (North):
+    - Baltimore Ravens
+    - Cincinnati Bengals
+    - Cleveland Browns
+    - Pittsburgh Steelers
+
+  AFC Sul (South):
+    - Houston Texans
+    - Indianapolis Colts
+    - Jacksonville Jaguars
+    - Tennessee Titans
+
+  AFC Oeste (West):
+    - Denver Broncos
+    - Kansas City Chiefs
+    - Las Vegas Raiders
+    - Los Angeles Chargers
+
+National Football Conference (NFC):
+  NFC Leste (East):
+    - Dallas Cowboys
+    - New York Giants
+    - Philadelphia Eagles
+    - Washington Commanders
+
+  NFC Norte (North):
+    - Chicago Bears
+    - Detroit Lions
+    - Green Bay Packers
+    - Minnesota Vikings
+
+  NFC Sul (South):
+    - Atlanta Falcons
+    - Carolina Panthers
+    - New Orleans Saints
+    - Tampa Bay Buccaneers
+
+  NFC Oeste (West):
+    - Arizona Cardinals
+    - Los Angeles Rams
+    - San Francisco 49ers
+    - Seattle Seahawks
+
