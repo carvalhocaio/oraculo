@@ -1,30 +1,49 @@
 import streamlit as st
+from langchain.memory import ConversationBufferMemory
+from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
+
 
 TIPOS_ARQUIVOS_VALIDOS = ['Site', 'YouTube', 'Pdf', 'Csv', 'Txt']
 CONFIG_MODELOS = {
-    'Groq': {'modelos': ['llama-3.1-70b-versatile', 'gemma2-9b-it', 'mixtral-8x7b-32768']},
-    'OpenAI': {'modelos': ['gpt-4o-mini', 'gpt-4o', 'o1-preview', 'o1-mini', 'gpt-3.5-turbo']}
+    'Groq': {
+        'modelos': ['llama-3.1-70b-versatile', 'gemma2-9b-it', 'mixtral-8x7b-32768'],
+        'chat': ChatGroq
+    },
+    'OpenAI': {
+        'modelos': ['gpt-4o-mini', 'gpt-4o', 'o1-preview', 'o1-mini', 'gpt-3.5-turbo'],
+        'chat': ChatOpenAI
+    }
 }
 
-MENSAGENS_EXEMPLO = [
-    ('user', 'Olá'),
-    ('assistant', 'Tudo bem?'),
-    ('user', 'Tudo ótimo!')
-]
+MEMORIA = ConversationBufferMemory()
+
+def carrega_modelo(provedor, modelo, api_key):
+    chat = CONFIG_MODELOS[provedor]['chat'](model=modelo, api_key=api_key)
+    st.session_state['chat'] = chat
+
 
 def pagina_chat():
     st.header('Bem-vindo ao Oráculo! :robot_face:', divider=True)
 
-    mensagens = st.session_state.get('mensagens', MENSAGENS_EXEMPLO)
-    for mensagem in mensagens:
-        chat = st.chat_message(mensagem[0])
-        chat.markdown(mensagem[1])
+    chat_model = st.session_state.get('chat')
+    memoria = st.session_state.get('memoria', MEMORIA)
+    for mensagem in memoria.buffer_as_messages:
+        chat = st.chat_message(mensagem.type)
+        chat.markdown(mensagem.content)
 
     input_usuario = st.chat_input('Fale com o Oráculo')
     if input_usuario:
-        mensagens.append(('user', input_usuario))
-        st.session_state['mensagens'] = mensagens
-        st.rerun()
+        chat = st.chat_message('human')
+        chat.markdown(input_usuario)
+
+        chat = st.chat_message('ai')
+        resposta = chat.write_stream(chat_model.stream(input_usuario))
+        
+        memoria.chat_memory.add_user_message(input_usuario)
+        memoria.chat_memory.add_ai_message(resposta)
+
+        st.session_state['memoria'] = memoria
 
 def sidebar():
     tabs = st.tabs(['Upload de Arquivos', 'Seleção de Modelos'])
@@ -49,6 +68,9 @@ def sidebar():
         )
 
         st.session_state[f'api_key_{provedor}'] = api_key
+    
+        if st.button('Inicializar Oráculo', use_container_width=True):
+            carrega_modelo(provedor, modelo, api_key)
 
 
 def main():
