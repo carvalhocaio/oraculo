@@ -1,7 +1,11 @@
+import tempfile
+
 import streamlit as st
 from langchain.memory import ConversationBufferMemory
 from langchain_openai import ChatOpenAI
 from langchain_groq import ChatGroq
+
+from document_loaders import *
 
 
 TIPOS_ARQUIVOS_VALIDOS = ['Site', 'YouTube', 'Pdf', 'Csv', 'Txt']
@@ -18,7 +22,28 @@ CONFIG_MODELOS = {
 
 MEMORIA = ConversationBufferMemory()
 
-def carrega_modelo(provedor, modelo, api_key):
+def carrega_modelo(provedor, modelo, api_key, tipo_arquivo, arquivo):
+    if tipo_arquivo == 'Site':
+        documento = carrega_site(arquivo)
+    if tipo_arquivo == 'YouTube':
+        documento = carrega_youtube(arquivo)
+    if tipo_arquivo == 'Pdf':
+        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp:
+            temp.write(arquivo.read())
+            nome_temp = temp.name
+        documento = carrega_pdf(nome_temp)
+    if tipo_arquivo == 'Csv':
+        with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as temp:
+            temp.write(arquivo.read())
+            nome_temp = temp.name
+        documento = carrega_csv(nome_temp)
+    if tipo_arquivo == 'Txt':
+        with tempfile.NamedTemporaryFile(suffix='.txt', delete=False) as temp:
+            temp.write(arquivo.read())
+            nome_temp = temp.name
+        documento = carrega_txt(nome_temp)
+
+    print(documento)
     chat = CONFIG_MODELOS[provedor]['chat'](model=modelo, api_key=api_key)
     st.session_state['chat'] = chat
 
@@ -68,9 +93,9 @@ def sidebar():
         )
 
         st.session_state[f'api_key_{provedor}'] = api_key
-    
-        if st.button('Inicializar Oráculo', use_container_width=True):
-            carrega_modelo(provedor, modelo, api_key)
+
+    if st.button('Inicializar Oráculo', use_container_width=True):
+        carrega_modelo(provedor, modelo, api_key, tipo_arquivo, arquivo)
 
 
 def main():
